@@ -112,7 +112,9 @@ def _bearer_token(request) -> str:
 
 
 def _rejected(code: str, reason: str) -> JsonResponse:
-    return JsonResponse({'rejected': True, 'code': code, 'reason': reason}, status=403)
+    return JsonResponse(
+        {'accepted': False, 'rejected': True, 'code': code, 'reason': reason}, status=403
+    )
 
 
 @csrf_exempt
@@ -227,6 +229,10 @@ def authenticate(request):
     )
     return JsonResponse(
         {
+            # ShitSpeak's authenticator-JSON contract defaults a missing
+            # `accepted` to false, so an accept MUST say so explicitly or the
+            # node rejects the login as "authenticator failure".
+            'accepted': True,
             'user_id': auth_user_id,
             'display_name': display_name,
             'groups': groups,

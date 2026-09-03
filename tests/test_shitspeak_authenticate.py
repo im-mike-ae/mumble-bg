@@ -72,6 +72,9 @@ class ShitSpeakAuthenticateViewTest(TestCase):
         assert response.status_code == 200
         body = response.json()
         assert body == {
+            # A ShitSpeak node treats a missing `accepted` as a rejection, so
+            # the accept path must send it explicitly.
+            'accepted': True,
             'user_id': 99,
             'display_name': 'Pilot One',
             'groups': ['member'],
@@ -86,6 +89,7 @@ class ShitSpeakAuthenticateViewTest(TestCase):
         assert response.status_code == 403
         assert response.json()['code'] == 'user_not_found'
         assert response.json()['rejected'] is True
+        assert response.json()['accepted'] is False
 
     def test_bad_credentials_map_to_403(self):
         with patch.object(shitspeak, 'authd_authenticate', return_value=None):
